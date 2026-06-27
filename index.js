@@ -40,18 +40,29 @@ transporter.verify((error) => {
 
 app.post("/send-mail", async (req, res) => {
   try {
+    console.log("================================");
+    console.log("New Request Received");
+    console.log("Request Body:", req.body);
+
     const { name, email, phone, message } = req.body;
+
+    console.log("Name:", name);
+    console.log("Email:", email);
+    console.log("Phone:", phone);
+    console.log("Message:", message);
+
     if (!name || !email || !message) {
+      console.log("Validation failed");
+
       return res.status(400).json({
         success: false,
         message: "Please fill all required fields",
       });
     }
 
-      const mailOptions = {
-  from: `"Dhwaja Flare Website" <${process.env.EMAIL_USER}>`,
-  to: process.env.EMAIL_USER,
-  replyTo: email,
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: process.env.EMAIL_USER,
       subject: `New Contact Form Submission from ${name}`,
       html: `
         <h2>New Contact Request</h2>
@@ -64,12 +75,21 @@ app.post("/send-mail", async (req, res) => {
         <p>${message}</p>
       `,
     };
-    await transporter.sendMail(mailOptions);
+
+    console.log("Sending email...");
+
+    const info = await transporter.sendMail(mailOptions);
+
+    console.log("Email sent successfully");
+    console.log("Message ID:", info.messageId);
+
     res.status(200).json({
       success: true,
       message: "Mail sent successfully",
     });
+
   } catch (error) {
+    console.log("Error while sending mail:");
     console.log(error);
 
     res.status(500).json({
