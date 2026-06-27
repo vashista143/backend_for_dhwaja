@@ -1,87 +1,65 @@
 const express = require("express");
+const bodyParser = require("body-parser");
 const nodemailer = require("nodemailer");
 const cors = require("cors");
 require("dotenv").config();
 
 const app = express();
 
-app.use(express.json());
+app.use(bodyParser.json());
+app.use(cors({
+  origin: [
+    "http://localhost:5173",
+    "https://dhwajaflare.com"
+  ]
+}));
 
-app.use(
-  cors({
-    origin: [
-      "http://localhost:5173",
-      "https://dhwajaflare.com",
-    ],
-  })
-);
+app.post("/send-mail", (req, res) => {
+  const { name, email, phone, message } = req.body;
 
-// Configure transporter
-const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 465,
-  secure: true,
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS, // Gmail App Password
-  },
-});
+  console.log("Received:", req.body);
 
-// Verify transporter
-transporter.verify((error) => {
-  if (error) {
-    console.log("Email configuration error:", error);
-  } else {
-    console.log("Email server is ready");
-  }
-});
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS, // App Password
+    },
+  });
 
-// POST endpoint
-app.post("/send-mail", async (req, res) => {
-  try {
-    console.log("Received request:", req.body);
+  const mailOptions = {
+    from: process.env.EMAIL_USER,
+    to: process.env.EMAIL_USER,
+    subject: `New Contact Form Submission from ${name}`,
+    text: `
+Name: ${name}
 
-    const { name, email, phone, message } = req.body;
+Email: ${email}
 
-    if (!name || !email || !message) {
-      return res.status(400).json({
+Phone: ${phone || "Not provided"}
+
+Message:
+${message}
+    `,
+  };
+
+  transporter.sendMail(mailOptions, (error, info) => {
+    if (error) {
+      console.log("Mail Error:", error);
+
+      return res.status(500).json({
         success: false,
-        message: "Please fill all required fields",
+        message: "Failed to send mail",
       });
     }
 
-    const mailOptions = {
-      from: `"Dhwaja Flare Website" <${process.env.EMAIL_USER}>`,
-      to: process.env.EMAIL_USER, // Mail sent to yourself
-      subject: `New Contact Form Submission from ${name}`,
-      html: `
-        <h2>New Contact Form Submission</h2>
+    console.log("Email sent:", info.response);
 
-        <p><strong>Name:</strong> ${name}</p>
-        <p><strong>Email:</strong> ${email}</p>
-        <p><strong>Phone:</strong> ${phone || "Not Provided"}</p>
-
-        <h3>Message:</h3>
-        <p>${message}</p>
-      `,
-    };
-
-    const info = await transporter.sendMail(mailOptions);
-
-    console.log("Mail sent:", info.messageId);
-
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
       message: "Mail sent successfully",
     });
-  } catch (error) {
-    console.log("Error sending mail:", error);
-
-    res.status(500).json({
-      success: false,
-      message: "Failed to send mail",
-    });
-  }
+  });
 });
 
 const PORT = process.env.PORT || 5000;
