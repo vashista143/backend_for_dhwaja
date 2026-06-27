@@ -1,0 +1,26 @@
+{
+  "name": "dhwaja-flare-backend",
+  "version": "1.0.0",
+  "description": "Backend API for Dhwaja Flare website contact form and email services",
+  "main": "server.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node --watch server.js",
+    "test": "echo \"No tests specified\" && exit 0"
+  },
+  "keywords": [
+    "dhwaja-flare",
+    "express",
+    "nodemailer",
+    "contact-form",
+    "backend"
+  ],
+  "author": "Vashista Dara",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "nodemailer": "^7.0.5"
+  }
+}
