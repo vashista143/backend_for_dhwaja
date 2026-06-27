@@ -19,12 +19,18 @@ app.post("/send-mail", (req, res) => {
 
   console.log("Received:", req.body);
 
+  // Replace your transporter creation logic with this:
   const transporter = nodemailer.createTransport({
-    service: "gmail",
+    host: "smtp.gmail.com",
+    port: 465, 
+    secure: true, // true for port 465
     auth: {
       user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS, // App Password
+      pass: process.env.EMAIL_PASS, // Make sure this is a 16-character App Password
     },
+    // Adding explicit timeouts to bypass aggressive network drops
+    connectionTimeout: 10000, // 10 seconds
+    socketTimeout: 10000,
   });
 
   const mailOptions = {
