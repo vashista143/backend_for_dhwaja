@@ -33,7 +33,7 @@ export default async function handler(req, res) {
 
     await resend.emails.send({
       from: "onboarding@resend.dev",
-      to: "vashista.dara03@gmail.com", // Replace with your email
+      to: "info@dhwajaflare.com", // Replace with your email
       subject: `New Contact Form Submission from ${name}`,
       html: `
         <h2>New Contact Request</h2>
